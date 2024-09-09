@@ -78,7 +78,7 @@ fuel_type_date |>
     recode_factor(
       sug_delek_nm,
       "בנזין" = "Benzin",
-      "גפמ" = "Gas",
+      "גפמ" = "LPG",
       "דיזל" = "Diesel",
       "חשמל" = "Fully Electric",
       "חשמל/בנזין" = "Hybrid",
