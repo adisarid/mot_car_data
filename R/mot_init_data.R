@@ -100,3 +100,34 @@ fuel_type_date |>
   theme(legend.justification = "top")
 
 # Top brands on the road:
+brand_per_year <- tbl(con, "mot_tbl") |> 
+  mutate(moed_aliya_lakvish_year = lubridate::year(moed_aliya_lakvish)) |> 
+  group_by(moed_aliya_lakvish_year) |> 
+  count(tozeret_nm) |> 
+  filter(!is.na(moed_aliya_lakvish_year)) |> 
+  collect() |> 
+  separate(tozeret_nm, into = c("tozeret", "origin", "rm1", "rm2", "rm3", "rm4"), sep = " |-|_") |> 
+    mutate(new_tozeret = 
+      case_when(tozeret == "דאבל" ~ "דאבל יו אם איי",
+                tozeret == "די" ~ "די אס",
+                tozeret == "אף" ~ "אף אי דאבל",
+                tozeret == "בי" ~ "בי ווי די",
+                tozeret == "ב" ~ "ב מ וו",
+                tozeret == "אל" ~ "אל אי וי",
+                tozeret == "קיי" ~ "קיי גי"
+  )) |> 
+    mutate(tozeret = coalesce(new_tozeret, tozeret)) |> 
+  select(moed_aliya_lakvish_year, tozeret, n) |> 
+  arrange(desc(n)) |> 
+  rename(year = moed_aliya_lakvish_year) |> 
+  ungroup() |> 
+  mutate(tozeret = fct_inorder(tozeret))
+
+library(gganimate)
+
+brand_per_year |> 
+  group_by(year) |> 
+  slice(1:10) |> 
+  filter(year == 2022) |> 
+  ggplot(aes(x = n, y = tozeret)) + 
+  geom_col()
